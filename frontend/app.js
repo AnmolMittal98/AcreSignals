@@ -90,7 +90,7 @@ async function fetchSignals() {
         
         filterFeed(currentFilter); 
     } catch (error) {
-        container.innerHTML = `<div class="text-center py-10 text-bearish font-bold text-[10px] uppercase tracking-widest">Connection Terminated. Check Server.</div>`;
+        container.innerHTML = `<div class="text-center py-10 text-bearish font-bold text-[10px] uppercase tracking-widest w-full col-span-full">Connection Terminated. Check Server.</div>`;
     }
 }
 
@@ -100,11 +100,17 @@ function renderFeed(data) {
     container.innerHTML = ''; 
 
     if (data.length === 0) {
-        container.innerHTML = `<div class="text-center py-10 text-primary-fixed-dim font-bold text-[10px] uppercase tracking-widest">No Signals Found.</div>`;
+        container.innerHTML = `<div class="text-center py-10 text-primary-fixed-dim font-bold text-[10px] uppercase tracking-widest w-full col-span-full">No Signals Found.</div>`;
         return;
     }
 
     data.forEach(signal => {
+        // TERMINOLOGY FIX: Translating backend tags to market-neutral tags
+        let displayImpact = signal.impact;
+        if (signal.impact === 'Positive') displayImpact = 'Growth';
+        if (signal.impact === 'Negative') displayImpact = 'Risk';
+        if (signal.impact === 'Neutral') displayImpact = 'Stable';
+
         let chipBg = signal.impact === 'Positive' ? 'bg-bullish-container' : (signal.impact === 'Negative' ? 'bg-bearish-container' : 'bg-neutral-container');
         let chipText = signal.impact === 'Positive' ? 'text-bullish' : (signal.impact === 'Negative' ? 'text-bearish' : 'text-neutral');
         
@@ -114,15 +120,16 @@ function renderFeed(data) {
 
         const isSaved = savedSignals.includes(signal.id);
 
+        // UI UPGRADE: Added hover animations, masonry 'break-inside-avoid', and scroll start states
         const cardHTML = `
-            <div class="bg-surface-container-lowest rounded-md p-6 flex flex-col gap-3 shadow-sm border border-outline-variant/10">
+            <div class="signal-card opacity-0 translate-y-8 transition-all duration-700 ease-out break-inside-avoid mb-6 bg-surface-container-lowest rounded-md p-6 flex flex-col gap-3 border border-outline-variant/10 shadow-sm hover:shadow-md hover:-translate-y-1">
                 <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
                     <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">${signal.category} • ${signal.location}</span>
                     <span class="text-[10px] font-medium text-outline-variant">${signal.date}</span>
                 </div>
                 <div class="flex items-start justify-between gap-2 pt-1">
                     <h2 class="font-headline text-3xl font-medium leading-none text-primary tracking-tight pr-4">${signal.headline}</h2>
-                    <span class="px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest ${chipBg} ${chipText} flex-shrink-0">${signal.impact}</span>
+                    <span class="px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest ${chipBg} ${chipText} flex-shrink-0">${displayImpact}</span>
                 </div>
                 <div class="bg-surface rounded-sm p-4 mt-2 space-y-2 border border-outline-variant/10">
                     ${bullet1 ? `<div class="flex gap-2 items-start"><span class="text-outline-variant mt-1 text-[10px]">■</span><p class="text-[13px] font-medium text-on-surface leading-snug">${bullet1}</p></div>` : ''}
@@ -148,6 +155,25 @@ function renderFeed(data) {
         `;
         container.insertAdjacentHTML('beforeend', cardHTML);
     });
+
+    // Trigger the scroll animation engine after the cards are painted
+    observeCards();
+}
+
+// --- NEW: SCROLL ANIMATION ENGINE ---
+function observeCards() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Smoothly fade up when they enter the screen
+                entry.target.classList.remove('opacity-0', 'translate-y-8');
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                observer.unobserve(entry.target); // Stop tracking once shown
+            }
+        });
+    }, { threshold: 0.1 }); // Triggers when 10% of the card is visible
+
+    document.querySelectorAll('.signal-card').forEach(card => observer.observe(card));
 }
 
 function filterFeed(location) {
@@ -175,41 +201,33 @@ function filterFeed(location) {
 function switchAppView(view) {
     window.trackEvent('tab_clicked', { tab_name: view });
 
-    // 1. Toggle UI Sections safely
-    const viewFeed = document.getElementById('view-feed');
-    const viewCircs = document.getElementById('view-circulars');
-    const viewUtils = document.getElementById('view-utils');
-    const filterDesktop = document.getElementById('filter-container-desktop');
-    const filterMobile = document.getElementById('filter-container-mobile');
-    const refreshBtn = document.getElementById('refresh-btn');
-
-    if(viewFeed) viewFeed.classList.toggle('hidden', view !== 'feed');
-    if(viewCircs) viewCircs.classList.toggle('hidden', view !== 'circulars');
-    if(viewUtils) viewUtils.classList.toggle('hidden', view !== 'utils');
+    // 1. Toggle UI Sections
+    document.getElementById('view-feed').classList.toggle('hidden', view !== 'feed');
+    document.getElementById('view-circulars').classList.toggle('hidden', view !== 'circulars');
+    document.getElementById('view-utils').classList.toggle('hidden', view !== 'utils');
     
     const showFilters = view === 'feed';
     
-    // FIX: Toggling internal lists instead of parent <aside> prevents Tailwind mobile overlap bug
+    const filterDesktop = document.getElementById('filter-container-desktop');
     if(filterDesktop) {
         filterDesktop.classList.toggle('hidden', !showFilters);
-        if(filterDesktop.previousElementSibling) {
-            filterDesktop.previousElementSibling.classList.toggle('hidden', !showFilters);
-        }
+        if(filterDesktop.previousElementSibling) filterDesktop.previousElementSibling.classList.toggle('hidden', !showFilters);
     }
     
-    if(filterMobile) filterMobile.classList.toggle('hidden', !showFilters);
-    if(refreshBtn) refreshBtn.classList.toggle('hidden', !showFilters);
+    document.getElementById('filter-container-mobile').classList.toggle('hidden', !showFilters);
+    document.getElementById('refresh-btn').classList.toggle('hidden', !showFilters);
 
-    // 2. Smooth Tab Highlighting safely
+    // 2. Tab Highlighting (Bug Fixed)
     ['feed', 'circulars', 'utils'].forEach(t => {
-        // Desktop
         const deskBtn = document.getElementById(`tab-${t}-desktop`);
         if (deskBtn) {
-            deskBtn.className = t === view 
-                ? "font-body uppercase tracking-widest text-xs text-primary font-bold border-b-2 border-primary py-1 transition-all"
-                : "font-body uppercase tracking-widest text-xs text-outline-variant font-medium hover:text-primary border-b-2 border-transparent py-1 transition-all";
+            if(t === view) {
+                deskBtn.className = "font-body uppercase tracking-widest text-xs text-primary font-bold border-b-2 border-primary py-1 transition-all";
+            } else {
+                deskBtn.className = "font-body uppercase tracking-widest text-xs text-outline-variant font-medium hover:text-primary border-b-2 border-transparent py-1 transition-all";
+            }
         }
-        // Mobile
+        
         const mobBtn = document.getElementById(`tab-${t}-mobile`);
         if (mobBtn) {
             if (t === view) {
@@ -377,11 +395,6 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(err => console.log('PWA Failed:', err)));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchSignals();
-    fetchCirculars(); 
-});
-
 // --- PWA SMART INSTALL PROMPT ---
 let deferredPrompt;
 
@@ -457,9 +470,9 @@ function closePWABanner() {
     if(banner) banner.remove();
 }
 
-// Add this to your existing DOMContentLoaded listener
+// Add this to your existing DOMContentLoaded listener (Cleaned up so it only runs once)
 document.addEventListener('DOMContentLoaded', () => {
     fetchSignals();
     fetchCirculars(); 
-    initPWA(); // Initialize the smart prompt
+    initPWA(); 
 });
