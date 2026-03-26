@@ -9,9 +9,15 @@ load_dotenv()
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./market_signals.db")
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+# 1. Cloud providers sometimes use 'postgres://', but SQLAlchemy requires 'postgresql://'
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# 2. Dynamic Engine: Removes SQLite-specific thread arguments if using Postgres
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -30,7 +36,7 @@ class MarketSignal(Base):
     category = Column(String(100), index=True, nullable=False)
     impact = Column(Enum(ImpactLevel), nullable=False, default=ImpactLevel.NEUTRAL)
     summary = Column(Text, nullable=False)
-    source_url = Column(String(500), unique=True, nullable=False)
+    source_url = Column(Text, unique=True, nullable=False) # UPGRADED: Infinite length for Google News URLs
     source_name = Column(String(100), nullable=False) 
     published_at = Column(DateTime, default=datetime.utcnow, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -39,9 +45,9 @@ class GovernmentCircular(Base):
     __tablename__ = "government_circulars"
 
     id = Column(Integer, primary_key=True, index=True)
-    source_name = Column(String(100), index=True, nullable=False) # e.g., "Noida Authority"
+    source_name = Column(String(100), index=True, nullable=False) 
     title = Column(String(500), nullable=False)
-    url = Column(String(500), unique=True, nullable=False) # PDF Link
+    url = Column(Text, unique=True, nullable=False) # UPGRADED: Infinite length for deep links
     published_date = Column(DateTime, default=datetime.utcnow, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -56,5 +62,8 @@ def get_db():
         db.close()
 
 if __name__ == "__main__":
+    # Wipe the old 500-character limited tables
+    Base.metadata.drop_all(bind=engine)
+    # Build the upgraded infinite-length tables
     init_db()
-    print("Database schema successfully initialized.")
+    print("Database schema successfully upgraded in the cloud with infinite URL limits.")

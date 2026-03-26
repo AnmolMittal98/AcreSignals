@@ -7,6 +7,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.so
+*.pyc
 
 .pytest_cache/
 .mypy_cache/
@@ -26,6 +27,7 @@ ENV/
 # Local database(s)
 *.db
 *.sqlite3
+market_signals.db
 
 # Frontend / Node
 node_modules/
