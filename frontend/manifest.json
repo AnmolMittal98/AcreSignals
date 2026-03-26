@@ -1,6 +1,6 @@
 {
-    "name": "MarketSignals Intelligence",
-    "short_name": "MarketSignals",
+    "name": "AcreSignals Intelligence",
+    "short_name": "AcreSignals",
     "description": "Daily Delhi NCR real estate market intelligence and news.",
     "start_url": "/",
     "display": "standalone",

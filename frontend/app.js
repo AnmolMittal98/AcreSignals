@@ -51,7 +51,7 @@ function shareToWhatsApp(id, location, category) {
     else if(cat.includes('resid')) catEmoji = '🏘️';
     else if(cat.includes('polic')) catEmoji = '📜';
 
-    const text = `${impactEmoji} *${signal.impact} Signal: ${signal.location}*\n${catEmoji} Category: ${signal.category}\n\n"${signal.summary}"\n\n🔗 Source: ${signal.sourceUrl}\n📊 *Powered by MarketSignals*`;
+    const text = `${impactEmoji} *${signal.impact} Signal: ${signal.location}*\n${catEmoji} Category: ${signal.category}\n\n"${signal.summary}"\n\n🔗 Source: ${signal.sourceUrl}\n📊 *Powered by AcreSignals*`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
 }
 
@@ -370,4 +370,86 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', () => {
     fetchSignals();
     fetchCirculars(); 
+});
+
+// --- PWA SMART INSTALL PROMPT ---
+let deferredPrompt;
+
+function initPWA() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    // If they already installed it, do nothing
+    if (isStandalone) return;
+
+    // 1. ANDROID LOGIC (Native Prompt)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallBanner('android');
+    });
+
+    // 2. IOS LOGIC (Manual Instructions)
+    // We delay the iOS prompt by 3 seconds so it doesn't interrupt their first impression
+    if (isIOS) {
+        setTimeout(() => showInstallBanner('ios'), 3000);
+    }
+}
+
+function showInstallBanner(os) {
+    // Prevent duplicate banners
+    if(document.getElementById('pwa-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'pwa-banner';
+    banner.className = 'fixed bottom-20 left-4 right-4 md:bottom-8 md:right-8 md:left-auto md:w-96 bg-primary text-white p-4 rounded-md shadow-ambient z-[60] animate-fade-in-up flex gap-4 items-start';
+    
+    let content = '';
+    if (os === 'android') {
+        content = `
+            <div class="flex-1">
+                <h4 class="font-headline text-lg font-bold">Install AcreSignals</h4>
+                <p class="text-[11px] text-outline-variant mt-1 leading-tight">Add to your home screen for zero-latency access and offline saves.</p>
+            </div>
+            <button onclick="triggerAndroidInstall()" class="bg-white text-primary px-3 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-widest mt-1">Install</button>
+            <button onclick="closePWABanner()" class="text-outline-variant ml-2 mt-1"><span class="material-symbols-outlined text-[16px]">close</span></button>
+        `;
+    } else if (os === 'ios') {
+        content = `
+            <div class="flex-1">
+                <h4 class="font-headline text-lg font-bold">Install on iPhone</h4>
+                <p class="text-[11px] text-outline-variant mt-1 leading-tight">Tap the <span class="material-symbols-outlined text-[14px] align-middle mx-0.5">ios_share</span> <b>Share</b> button below, then select <br><b>"Add to Home Screen"</b> <span class="material-symbols-outlined text-[14px] align-middle mx-0.5">add_box</span>.</p>
+            </div>
+            <button onclick="closePWABanner()" class="text-outline-variant ml-2 mt-1"><span class="material-symbols-outlined text-[16px]">close</span></button>
+        `;
+    }
+
+    banner.innerHTML = content;
+    document.body.appendChild(banner);
+}
+
+function triggerAndroidInstall() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                window.trackEvent('pwa_installed', { os: 'android' });
+            }
+            deferredPrompt = null;
+            closePWABanner();
+        });
+    }
+}
+
+function closePWABanner() {
+    const banner = document.getElementById('pwa-banner');
+    if(banner) banner.remove();
+}
+
+// Add this to your existing DOMContentLoaded listener
+document.addEventListener('DOMContentLoaded', () => {
+    fetchSignals();
+    fetchCirculars(); 
+    initPWA(); // Initialize the smart prompt
 });

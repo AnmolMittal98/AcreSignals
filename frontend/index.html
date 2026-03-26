@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>MarketSignals | Clinical Intelligence</title>
+    <title>AcreSignals | Clinical Intelligence</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;500;600;700&display=swap" rel="stylesheet"/>
@@ -75,6 +75,13 @@
         }
         
         .machined-gradient { background: linear-gradient(135deg, #000000 0%, #3b3b3b 100%); }
+
+        /* --- PWA ANIMATION ADDED HERE --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="text-on-surface pb-24 md:pb-0">
@@ -82,7 +89,7 @@
     <header class="fixed top-0 w-full z-50 bg-[#f9f9f9]/80 backdrop-blur-[20px] border-b border-outline-variant/20 flex justify-between items-center px-6 py-4">
         <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-primary text-2xl">analytics</span>
-            <span class="font-headline italic font-bold text-primary text-2xl tracking-tighter">MarketSignals</span>
+            <span class="font-headline italic font-bold text-primary text-2xl tracking-tighter">AcreSignals</span>
         </div>
         
         <nav class="hidden md:flex items-center gap-8">
