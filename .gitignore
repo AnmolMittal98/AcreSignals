@@ -1,0 +1,44 @@
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Local database(s)
+*.db
+*.sqlite3
+
+# Frontend / Node
+node_modules/
+frontend/node_modules/
+
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# Editor / OS junk
+.DS_Store
+.idea/
+.vscode/
+*.log
+

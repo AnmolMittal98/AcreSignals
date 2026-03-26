@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>MarketSignals | Clinical Intelligence</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#eeeeee">
+    
+    <script id="tailwind-config">
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#f9f9f9",
+              "surface-container-low": "#f3f3f3",
+              "surface-container": "#eeeeee",
+              "surface-container-high": "#e8e8e8",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#000000",
+              "primary-container": "#3b3b3b",
+              "primary-fixed-dim": "#474747",
+              "outline-variant": "#c6c6c6",
+              "secondary-container": "#d6d4d3",
+              "on-secondary-container": "#1a1c1c",
+              "on-surface": "#1a1c1c",
+              "bullish": "#006e37",
+              "bullish-container": "rgba(0, 110, 55, 0.15)",
+              "bearish": "#b5281d",
+              "bearish-container": "rgba(181, 40, 29, 0.15)",
+              "neutral": "#5e5e5e",
+              "neutral-container": "rgba(94, 94, 94, 0.15)"
+            },
+            fontFamily: {
+              "headline": ["Newsreader", "serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "sm": "0.125rem", "md": "0.375rem", "lg": "0.5rem"},
+          },
+        },
+      }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #eeeeee; min-height: 100vh;}
+        .serif { font-family: 'Newsreader', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        ::-webkit-scrollbar { display: none; }
+        .shadow-ambient { box-shadow: 0px 20px 40px rgba(26, 28, 28, 0.04); }
+        
+        input[type="number"], select {
+            -webkit-appearance: none;
+            background-color: #f3f3f3;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1a1c1c;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input[type="number"]:focus, select:focus {
+            border-color: #000000;
+            background-color: #ffffff;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+    <header class="fixed top-0 w-full z-50 bg-[#f9f9f9]/90 backdrop-blur-[20px] border-b border-outline-variant/20 flex flex-col pt-5 pb-3 px-5">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="font-headline font-bold text-2xl text-primary tracking-tight">MarketSignals</h1>
+            <div id="sync-status" class="w-7 h-7 rounded flex items-center justify-center bg-surface-container-high border border-outline-variant/20">
+                 <span class="material-symbols-outlined text-[16px] text-primary animate-pulse">sync</span>
+            </div>
+        </div>
+
+        <div class="flex p-1 bg-surface-container-high rounded mb-3 gap-1">
+            <button onclick="switchAppView('feed')" id="tab-feed" class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-primary text-white rounded transition-colors">Feed</button>
+            <button onclick="switchAppView('circulars')" id="tab-circulars" class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary-fixed-dim hover:bg-outline-variant/20 rounded transition-colors">Circulars</button>
+            <button onclick="switchAppView('utils')" id="tab-utils" class="flex-1 py-1.5 text-[10px] font-bold uppercase tracking-widest text-primary-fixed-dim hover:bg-outline-variant/20 rounded transition-colors">Tools</button>
+        </div>
+        
+        <div class="flex gap-2 overflow-x-auto pb-1 scroll-smooth no-scrollbar" id="filter-container">
+            <button onclick="filterFeed('All')" class="filter-btn px-4 py-1.5 rounded bg-primary text-white text-[11px] font-bold tracking-wider uppercase whitespace-nowrap transition-colors">ALL NCR</button>
+            <button onclick="filterFeed('Noida')" class="filter-btn px-4 py-1.5 rounded bg-secondary-container text-on-secondary-container text-[11px] font-bold tracking-wider uppercase whitespace-nowrap transition-colors">NOIDA</button>
+            <button onclick="filterFeed('Gurgaon')" class="filter-btn px-4 py-1.5 rounded bg-secondary-container text-on-secondary-container text-[11px] font-bold tracking-wider uppercase whitespace-nowrap transition-colors">GURGAON</button>
+            <button onclick="filterFeed('Delhi')" class="filter-btn px-4 py-1.5 rounded bg-secondary-container text-on-secondary-container text-[11px] font-bold tracking-wider uppercase whitespace-nowrap transition-colors">DELHI</button>
+        </div>
+    </header>
+
+    <main id="view-feed" class="pt-40 pb-24 px-4 max-w-xl mx-auto block">
+        <div id="signals-list" class="space-y-3"></div>
+    </main>
+
+    <main id="view-circulars" class="pt-40 pb-24 px-4 max-w-xl mx-auto space-y-8 hidden">
+        <div>
+            <div class="border-b border-outline-variant/20 pb-2 mb-3">
+                <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Delhi</span>
+                <h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">DDA Notices</h2>
+            </div>
+            <div id="circ-dda" class="space-y-2"></div>
+        </div>
+
+        <div>
+            <div class="border-b border-outline-variant/20 pb-2 mb-3">
+                <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Uttar Pradesh</span>
+                <h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">UP RERA</h2>
+            </div>
+            <div id="circ-uprera" class="space-y-2"></div>
+        </div>
+
+        <div>
+            <div class="border-b border-outline-variant/20 pb-2 mb-3">
+                <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Uttar Pradesh</span>
+                <h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">Noida Authority</h2>
+            </div>
+            <div id="circ-noida" class="space-y-2"></div>
+        </div>
+
+        <div>
+            <div class="border-b border-outline-variant/20 pb-2 mb-3">
+                <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Haryana</span>
+                <h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">Haryana RERA</h2>
+            </div>
+            <div id="circ-hrera" class="space-y-2"></div>
+        </div>
+    </main>
+
+    <main id="view-utils" class="pt-40 pb-24 px-4 max-w-xl mx-auto space-y-4 hidden">
+        <div class="bg-surface-container-lowest rounded-md p-5 flex flex-col gap-4">
+            <div class="border-b border-outline-variant/20 pb-2">
+                <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Quick Tool</span>
+                <h2 class="font-headline text-2xl font-medium leading-none text-primary tracking-tight mt-1">Area Converter</h2>
+            </div>
+            <div class="flex gap-2">
+                <input type="number" id="area-input" placeholder="Enter Value" value="1" oninput="calculateArea()">
+                <select id="area-unit" onchange="calculateArea()" class="w-1/2">
+                    <option value="sqft">Sq Ft</option>
+                    <option value="gaj">Sq Yard (Gaj)</option>
+                    <option value="sqm">Sq Meter</option>
+                    <option value="acre">Acre</option>
+                    <option value="bigha">Bigha (UP)</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-2" id="area-results"></div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-md p-5 flex flex-col gap-4">
+            <div class="border-b border-outline-variant/20 pb-2">
+                <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Calculator</span>
+                <h2 class="font-headline text-2xl font-medium leading-none text-primary tracking-tight mt-1">Stamp Duty Est.</h2>
+            </div>
+            <div class="space-y-3">
+                <input type="number" id="sd-value" placeholder="Property Value (₹)" oninput="calculateStampDuty()">
+                <div class="flex gap-2">
+                    <select id="sd-region" onchange="calculateStampDuty()">
+                        <option value="Delhi">Delhi</option>
+                        <option value="Noida">Noida (UP)</option>
+                        <option value="Gurgaon">Gurgaon (HR)</option>
+                    </select>
+                    <select id="sd-buyer" onchange="calculateStampDuty()">
+                        <option value="Male">Male Buyer</option>
+                        <option value="Female">Female Buyer</option>
+                        <option value="Joint">Joint (M+F)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-surface rounded-sm p-4 mt-2 border border-outline-variant/10">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[11px] font-bold text-primary-fixed-dim uppercase tracking-widest">Est. Duty + Reg:</span>
+                    <span class="text-[11px] font-bold text-primary-fixed-dim" id="sd-rates">0%</span>
+                </div>
+                <h3 class="font-headline text-3xl font-bold text-primary tracking-tight" id="sd-total">₹ 0</h3>
+            </div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-8 right-5" id="refresh-btn">
+        <button onclick="fetchSignals()" class="w-12 h-12 bg-gradient-to-br from-primary to-primary-container text-white rounded shadow-ambient flex items-center justify-center active:bg-primary-container transition-all">
+            <span class="material-symbols-outlined text-xl">refresh</span>
+        </button>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
