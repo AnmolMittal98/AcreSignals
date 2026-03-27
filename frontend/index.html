@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>AcreSignals | Clinical Intelligence</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;1,6..72,400;1,6..72,700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
     <link rel="manifest" href="/manifest.json">
@@ -14,69 +14,75 @@
     
     <script id="tailwind-config">
       tailwind.config = {
+        darkMode: "class",
         theme: {
           extend: {
             colors: {
-              "surface": "#f9f9f9",
-              "surface-container-low": "#f3f3f3",
-              "surface-container": "#eeeeee",
-              "surface-container-high": "#e8e8e8",
-              "surface-container-lowest": "#ffffff",
-              "primary": "#000000",
+              "tertiary-fixed": "#506169",
+              "outline": "#777777",
+              "on-tertiary-container": "#ffffff",
+              "on-secondary-container": "#1b1c1c",
               "primary-container": "#3b3b3b",
-              "primary-fixed-dim": "#474747",
-              "outline-variant": "#c6c6c6",
+              "background": "#f9f9f9",
+              "surface-container-lowest": "#ffffff",
+              "on-surface-variant": "#474747",
+              "tertiary-container": "#667780",
+              "tertiary": "#2e3e45",
+              "on-primary-container": "#ffffff",
+              "inverse-surface": "#2f3131",
+              "on-background": "#1a1c1c",
+              "surface-dim": "#dadada",
+              "surface-container-low": "#f3f3f3",
               "secondary-container": "#d6d4d3",
-              "on-secondary-container": "#1a1c1c",
+              "surface-variant": "#e2e2e2",
+              "surface-container-high": "#e8e8e8",
+              "error": "#ba1a1a",
+              "surface": "#f9f9f9",
+              "surface-container": "#eeeeee",
               "on-surface": "#1a1c1c",
-              "bullish": "#006e37",
-              "bullish-container": "rgba(0, 110, 55, 0.15)",
-              "bearish": "#b5281d",
-              "bearish-container": "rgba(181, 40, 29, 0.15)",
-              "neutral": "#5e5e5e",
-              "neutral-container": "rgba(94, 94, 94, 0.15)",
-              "tertiary": "#2e3e45"
+              "error-container": "#ffdad6",
+              "secondary": "#5f5e5e",
+              "outline-variant": "#c6c6c6",
+              "primary-fixed": "#5e5e5e",
+              "surface-container-highest": "#e2e2e2",
+              "primary": "#000000",
+              "primary-fixed-dim": "#474747",
+              "inverse-primary": "#c6c6c6",
             },
             fontFamily: {
               "headline": ["Newsreader", "serif"],
               "body": ["Inter", "sans-serif"],
               "label": ["Inter", "sans-serif"]
             },
-            borderRadius: {"DEFAULT": "0.25rem", "sm": "0.125rem", "md": "0.375rem", "lg": "0.5rem"},
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
           },
         },
       }
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #f9f9f9; min-height: 100vh;}
-        .serif { font-family: 'Newsreader', serif; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
         ::-webkit-scrollbar { display: none; }
         
+        /* Clinical Design System Classes */
         .shadow-ambient { box-shadow: 0px 20px 40px rgba(26, 28, 28, 0.04); }
+        .glass-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .machined-gradient { background: linear-gradient(135deg, #000000 0%, #3b3b3b 100%); }
+        .impact-positive { background-color: #059669; }
+        .impact-negative { background-color: #dc2626; }
+        .impact-neutral { background-color: #71717a; }
         
+        /* Soft-Bottom Inputs */
         input[type="number"], input[type="text"], select {
-            -webkit-appearance: none;
-            background-color: #eeeeee;
-            border: none;
-            border-bottom: 1px solid rgba(198, 198, 198, 0.5);
-            border-radius: 0.125rem 0.125rem 0 0;
-            padding: 0.75rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #1a1c1c;
-            width: 100%;
-            outline: none;
-            transition: all 0.2s ease;
+            -webkit-appearance: none; background-color: transparent; border: none;
+            border-bottom: 1px solid rgba(198, 198, 198, 0.5); border-radius: 0;
+            padding: 0.5rem 0.25rem; font-size: 0.875rem; font-weight: 500; color: #1a1c1c;
+            width: 100%; outline: none; transition: all 0.2s ease;
         }
         input[type="number"]:focus, input[type="text"]:focus, select:focus {
             border-bottom: 2px solid #000000;
-            background-color: #f3f3f3;
         }
         
-        .machined-gradient { background: linear-gradient(135deg, #000000 0%, #3b3b3b 100%); }
-
-        /* --- PWA ANIMATION ADDED HERE --- */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -84,149 +90,168 @@
         .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
-<body class="text-on-surface pb-24 md:pb-0">
+<body class="text-on-background pb-24 md:pb-0">
     
-    <header class="fixed top-0 w-full z-50 bg-[#f9f9f9]/80 backdrop-blur-[20px] border-b border-outline-variant/20 flex justify-between items-center px-6 py-4">
+    <header class="fixed top-0 w-full z-50 bg-white/80 glass-header border-b border-outline-variant/20 flex justify-between items-center px-6 py-4">
         <div class="flex items-center gap-3">
             <span class="material-symbols-outlined text-primary text-2xl">analytics</span>
             <span class="font-headline italic font-bold text-primary text-2xl tracking-tighter">AcreSignals</span>
         </div>
         
         <nav class="hidden md:flex items-center gap-8">
-            <button onclick="switchAppView('feed')" id="tab-feed-desktop" class="font-body uppercase tracking-widest text-xs text-primary font-bold border-b-2 border-primary py-1 transition-all">Feed</button>
-            <button onclick="switchAppView('circulars')" id="tab-circulars-desktop" class="font-body uppercase tracking-widest text-xs text-outline-variant font-medium hover:text-primary border-b-2 border-transparent py-1 transition-all">Circulars</button>
-            <button onclick="switchAppView('utils')" id="tab-utils-desktop" class="font-body uppercase tracking-widest text-xs text-outline-variant font-medium hover:text-primary border-b-2 border-transparent py-1 transition-all">Tools</button>
+            <button onclick="switchAppView('feed')" id="tab-feed-desktop" class="font-body uppercase tracking-wider text-xs text-primary font-bold border-b-2 border-primary py-1 transition-all">Feed</button>
+            <button onclick="switchAppView('circulars')" id="tab-circulars-desktop" class="font-body uppercase tracking-wider text-xs text-outline font-medium hover:bg-surface-container-low px-2 py-1 transition-all">Circulars</button>
+            <button onclick="switchAppView('utils')" id="tab-utils-desktop" class="font-body uppercase tracking-wider text-xs text-outline font-medium hover:bg-surface-container-low px-2 py-1 transition-all">Analytics</button>
         </nav>
         
-        <div id="sync-status" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/20">
-             <span class="material-symbols-outlined text-[16px] text-primary animate-pulse">sync</span>
+        <div id="sync-status" class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20">
+             <span class="material-symbols-outlined text-sm text-primary animate-pulse">sync</span>
         </div>
     </header>
 
-    <div class="flex pt-20 min-h-screen">
+    <div class="flex pt-16 min-h-screen">
         
-        <aside class="hidden md:flex w-64 flex-col pt-8 px-4 h-screen border-r border-outline-variant/20 bg-surface fixed left-0 top-20 z-40 pb-24">
+        <aside class="hidden lg:flex w-64 flex-col pt-12 px-4 h-screen border-r border-outline-variant/20 bg-surface fixed left-0 top-16 z-40 pb-24">
             <div class="mb-8 px-2">
-                <span class="font-body text-xs font-bold uppercase tracking-widest text-primary-fixed-dim">Regional Filters</span>
+                <span class="font-body text-xs font-bold uppercase tracking-widest text-primary-fixed-dim">Regional Intelligence</span>
             </div>
             <ul class="space-y-1" id="filter-container-desktop">
-                <li><button onclick="filterFeed('All')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 bg-secondary-container text-on-secondary-container rounded-sm font-body text-sm font-medium transition-all">All NCR</button></li>
-                <li><button onclick="filterFeed('Saved')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-primary-fixed-dim hover:bg-surface-container font-body text-sm font-medium transition-all"><span class="material-symbols-outlined text-sm">bookmark</span> Saved</button></li>
-                <li><button onclick="filterFeed('Noida')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-primary-fixed-dim hover:bg-surface-container font-body text-sm font-medium transition-all">Noida</button></li>
-                <li><button onclick="filterFeed('Gurgaon')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-primary-fixed-dim hover:bg-surface-container font-body text-sm font-medium transition-all">Gurgaon</button></li>
-                <li><button onclick="filterFeed('Delhi')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-primary-fixed-dim hover:bg-surface-container font-body text-sm font-medium transition-all">Delhi</button></li>
+                <li><button onclick="filterFeed('All')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 bg-surface-container-highest text-primary rounded-sm font-body text-sm font-medium transition-all scale-95"><span class="material-symbols-outlined text-lg">location_on</span> All NCR</button></li>
+                <li><button onclick="filterFeed('Saved')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-outline-variant hover:bg-surface-container-low hover:text-primary font-body text-sm font-medium transition-all"><span class="material-symbols-outlined text-lg">bookmark</span> Saved</button></li>
+                <li><button onclick="filterFeed('Noida')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-outline-variant hover:bg-surface-container-low hover:text-primary font-body text-sm font-medium transition-all"><span class="material-symbols-outlined text-lg">location_city</span> Noida</button></li>
+                <li><button onclick="filterFeed('Gurgaon')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-outline-variant hover:bg-surface-container-low hover:text-primary font-body text-sm font-medium transition-all"><span class="material-symbols-outlined text-lg">apartment</span> Gurgaon</button></li>
+                <li><button onclick="filterFeed('Delhi')" class="filter-btn w-full flex items-center gap-3 px-3 py-2 text-outline-variant hover:bg-surface-container-low hover:text-primary font-body text-sm font-medium transition-all"><span class="material-symbols-outlined text-lg">domain</span> Delhi</button></li>
             </ul>
         </aside>
 
-        <main class="flex-1 md:ml-64 p-4 md:p-12 max-w-5xl mx-auto w-full relative z-10">
+        <main class="flex-1 lg:ml-64 p-6 md:p-12 max-w-6xl mx-auto w-full relative z-10">
             
-            <div class="md:hidden flex gap-2 overflow-x-auto pb-4 mb-2 scroll-smooth no-scrollbar" id="filter-container-mobile">
-                <button onclick="filterFeed('All')" class="filter-btn px-4 py-1.5 rounded-full bg-primary text-white text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">All NCR</button>
-                <button onclick="filterFeed('Saved')" class="filter-btn px-4 py-1.5 rounded-full bg-surface-container text-primary-fixed-dim text-[10px] font-bold tracking-wider uppercase whitespace-nowrap flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">bookmark</span> Saved</button>
-                <button onclick="filterFeed('Noida')" class="filter-btn px-4 py-1.5 rounded-full bg-surface-container text-primary-fixed-dim text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">Noida</button>
-                <button onclick="filterFeed('Gurgaon')" class="filter-btn px-4 py-1.5 rounded-full bg-surface-container text-primary-fixed-dim text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">Gurgaon</button>
-                <button onclick="filterFeed('Delhi')" class="filter-btn px-4 py-1.5 rounded-full bg-surface-container text-primary-fixed-dim text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">Delhi</button>
+            <div class="lg:hidden flex gap-2 overflow-x-auto pb-4 mb-2 scroll-smooth no-scrollbar" id="filter-container-mobile">
+                <button onclick="filterFeed('All')" class="filter-btn px-4 py-1.5 rounded-full bg-surface-container-highest text-primary text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">All NCR</button>
+                <button onclick="filterFeed('Saved')" class="filter-btn px-4 py-1.5 rounded-full bg-surface text-outline-variant text-[10px] font-bold tracking-wider uppercase whitespace-nowrap flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">bookmark</span> Saved</button>
+                <button onclick="filterFeed('Noida')" class="filter-btn px-4 py-1.5 rounded-full bg-surface text-outline-variant text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">Noida</button>
+                <button onclick="filterFeed('Gurgaon')" class="filter-btn px-4 py-1.5 rounded-full bg-surface text-outline-variant text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">Gurgaon</button>
+                <button onclick="filterFeed('Delhi')" class="filter-btn px-4 py-1.5 rounded-full bg-surface text-outline-variant text-[10px] font-bold tracking-wider uppercase whitespace-nowrap">Delhi</button>
             </div>
 
             <div id="view-feed" class="block">
-                <header class="mb-10">
-                    <p class="font-body uppercase tracking-widest text-[10px] font-bold text-primary-fixed-dim mb-2">Intelligence Stream</p>
-                    <h1 class="font-headline text-5xl font-bold tracking-tight text-primary">Property News Feed</h1>
-                    <p class="mt-3 text-[13px] leading-relaxed text-outline-variant max-w-xl font-medium">AI-curated zoning shifts and infrastructure unlocks. Forward these summaries directly to clients to establish market authority.</p>
+                <header class="mb-12">
+                    <p class="font-body uppercase tracking-widest text-xs font-bold text-primary-fixed-dim mb-2">Intelligence Stream</p>
+                    <h1 class="font-headline text-5xl font-bold tracking-tight text-primary">Property Market Dynamics: NCR</h1>
                 </header>
-                <div id="signals-list" class="columns-1 lg:columns-2 gap-6"></div>
+                <div id="signals-list" class="columns-1 lg:columns-2 gap-8"></div>
             </div>
 
             <div id="view-circulars" class="hidden">
-                <header class="mb-10">
-                    <p class="font-body uppercase tracking-widest text-[10px] font-bold text-primary-fixed-dim mb-2">Verified Documents</p>
-                    <h1 class="font-headline text-5xl font-bold tracking-tight text-primary">Public Notices</h1>
-                    <p class="mt-3 text-[13px] leading-relaxed text-outline-variant max-w-xl font-medium">Raw, verified public notices bypassing government firewalls. Catch policy and RERA changes before they hit the press.</p>
+                <header class="mb-12">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="font-body text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Intelligence Feed</span>
+                        <div class="h-[1px] w-12 bg-outline-variant"></div>
+                    </div>
+                    <h1 class="font-headline text-5xl font-bold tracking-tight text-on-background max-w-2xl leading-tight">Official Public Notices & <span class="italic font-normal">Circulars</span></h1>
+                    <p class="mt-4 text-on-surface-variant font-body text-lg max-w-xl">Real-time regulatory tracking across the National Capital Region. Verified documents from primary government portals.</p>
                 </header>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-surface-container-lowest p-6 shadow-ambient rounded-sm">
-                        <div class="border-b border-outline-variant/20 pb-2 mb-4"><span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Delhi</span><h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">DDA</h2></div>
-                        <div id="circ-dda" class="space-y-3"></div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6" id="circulars-bento-grid">
                     </div>
-                    <div class="bg-surface-container-lowest p-6 shadow-ambient rounded-sm">
-                        <div class="border-b border-outline-variant/20 pb-2 mb-4"><span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Uttar Pradesh</span><h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">UP RERA</h2></div>
-                        <div id="circ-uprera" class="space-y-3"></div>
-                    </div>
-                    <div class="bg-surface-container-lowest p-6 shadow-ambient rounded-sm">
-                        <div class="border-b border-outline-variant/20 pb-2 mb-4"><span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Uttar Pradesh</span><h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">Noida Authority</h2></div>
-                        <div id="circ-noida" class="space-y-3"></div>
-                    </div>
-                    <div class="bg-surface-container-lowest p-6 shadow-ambient rounded-sm">
-                        <div class="border-b border-outline-variant/20 pb-2 mb-4"><span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">Haryana</span><h2 class="font-headline text-2xl font-medium text-primary tracking-tight mt-1">Haryana RERA</h2></div>
-                        <div id="circ-hrera" class="space-y-3"></div>
-                    </div>
-                </div>
             </div>
 
             <div id="view-utils" class="hidden">
-                <header class="mb-10">
-                    <p class="font-body uppercase tracking-widest text-[10px] font-bold text-primary-fixed-dim mb-2">Clinical Analysis</p>
-                    <h1 class="font-headline text-5xl font-bold tracking-tight text-primary">Intelligence Toolkit</h1>
-                    <p class="mt-3 text-[13px] leading-relaxed text-outline-variant max-w-xl font-medium">Zero-latency calculators localized for Delhi NCR. Structuring tools built specifically for in-the-field deal negotiations.</p>
+                <header class="mb-12">
+                    <p class="font-body text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-2">Clinical Analysis</p>
+                    <h2 class="font-headline text-5xl md:text-7xl text-primary tracking-tight leading-none mb-4">Market Intelligence <br/><span class="italic text-tertiary-fixed">Toolkit.</span></h2>
+                    <div class="h-px w-24 bg-primary mb-6"></div>
+                    <p class="font-body text-on-surface-variant max-w-xl leading-relaxed">Precision-engineered calculators for real estate valuation, financing structures, and area optimization. Data-dense interfaces for professional curators.</p>
                 </header>
                 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                     
-                    <div class="md:col-span-7 bg-surface-container-lowest p-8 shadow-ambient rounded-sm border-t-2 border-primary">
+                    <div class="md:col-span-7 bg-surface-container-lowest border border-outline-variant/20 p-6 shadow-sm">
                         <div class="flex justify-between items-start mb-8">
-                            <div><span class="font-body text-[10px] font-bold uppercase tracking-widest text-tertiary mb-1 block">Financing</span><h3 class="font-headline text-3xl font-medium">Mortgage Analyst</h3></div>
-                            <span class="material-symbols-outlined text-outline-variant">calculate</span>
+                            <div>
+                                <span class="font-body text-[10px] font-bold uppercase text-primary-fixed mb-1 block">Financing</span>
+                                <h3 class="font-headline text-2xl">Mortgage & EMI Analyst</h3>
+                            </div>
+                            <span class="material-symbols-outlined text-primary-fixed-dim">calculate</span>
                         </div>
                         <div class="space-y-6">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Principal (₹)</label><input id="emi-principal" type="number" value="7500000" oninput="calculateEMI()"></div>
-                                <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Rate (%)</label><input id="emi-rate" type="number" value="8.5" step="0.1" oninput="calculateEMI()"></div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-on-surface-variant">Principal Amount (₹)</label>
+                                    <div class="bg-surface-container-low"><input id="emi-principal" type="number" value="7500000" oninput="calculateEMI()"></div>
+                                </div>
+                                <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-on-surface-variant">Interest Rate (%)</label>
+                                    <div class="bg-surface-container-low"><input id="emi-rate" type="number" value="8.5" step="0.1" oninput="calculateEMI()"></div>
+                                </div>
                             </div>
-                            <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Tenure (Years)</label><input id="emi-tenure" type="number" value="20" oninput="calculateEMI()"></div>
-                            <div class="mt-8 pt-6 border-t border-outline-variant/20 flex flex-col sm:flex-row items-end justify-between gap-6">
-                                <div><p class="font-body text-[10px] font-bold uppercase tracking-widest text-outline-variant">Monthly Outflow</p><p class="font-headline text-4xl font-bold text-primary" id="emi-total">₹0</p></div>
-                                <div class="text-right"><p class="font-body text-[10px] font-bold uppercase tracking-widest text-outline-variant">Total Interest: <span id="emi-interest-display" class="text-primary">0</span></p></div>
+                            <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-on-surface-variant">Loan Tenure (Years)</label>
+                                <div class="bg-surface-container-low"><input id="emi-tenure" type="number" value="20" oninput="calculateEMI()"></div>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-outline-variant/20 flex flex-col sm:flex-row items-end gap-6 justify-between">
+                                <div class="flex-1 space-y-1">
+                                    <p class="font-body text-[10px] font-bold uppercase text-tertiary-fixed">Monthly Outflow</p>
+                                    <p class="font-headline text-4xl text-primary" id="emi-total">₹0</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-body text-[10px] font-bold uppercase text-tertiary-fixed">Total Interest Paid</p>
+                                    <p class="font-headline text-xl text-primary-fixed-dim" id="emi-interest-display">₹0</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-5 bg-surface-container-lowest p-8 shadow-ambient rounded-sm">
-                        <div class="mb-6"><span class="font-body text-[10px] font-bold uppercase tracking-widest text-tertiary mb-1 block">Investment</span><h3 class="font-headline text-2xl font-medium">Gross Yield</h3></div>
-                        <div class="space-y-5">
-                            <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Annual Rent (₹)</label><input id="yield-rent" type="number" value="480000" oninput="calculateYield()"></div>
-                            <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Property Value (₹)</label><input id="yield-cost" type="number" value="12000000" oninput="calculateYield()"></div>
-                            <div class="pt-4 border-t border-outline-variant/20"><p class="font-body text-[10px] font-bold uppercase tracking-widest text-outline-variant">Calculated ROI</p><p class="font-headline text-4xl font-bold text-bullish" id="yield-total">0.00%</p></div>
+                    <div class="md:col-span-5 flex flex-col gap-6">
+                        <div class="bg-surface-container-low p-6 border border-outline-variant/10">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-headline text-xl">Gross Rental Yield</h3>
+                                <span class="material-symbols-outlined text-sm">trending_up</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="space-y-1"><label class="font-body text-[10px] font-bold uppercase text-on-surface-variant">Annual Rent (₹)</label><input id="yield-rent" type="number" value="480000" oninput="calculateYield()" class="bg-surface-container-lowest"></div>
+                                <div class="space-y-1"><label class="font-body text-[10px] font-bold uppercase text-on-surface-variant">Property Value (₹)</label><input id="yield-cost" type="number" value="12000000" oninput="calculateYield()" class="bg-surface-container-lowest"></div>
+                                <div class="pt-2">
+                                    <p class="font-body text-[10px] font-bold uppercase text-on-surface-variant">Calculated Yield</p>
+                                    <p class="font-headline text-3xl text-primary" id="yield-total">0.00%</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="machined-gradient text-white p-6 relative overflow-hidden group">
+                            <div class="relative z-10">
+                                <h3 class="font-headline text-xl mb-2">Stamp Duty Estimator</h3>
+                                <div class="flex gap-4 mb-4">
+                                    <select id="sd-region" onchange="calculateStampDuty()" class="bg-transparent border-b border-white/30 text-white font-body text-xs focus:text-black w-1/2">
+                                        <option value="Delhi" class="text-black">Delhi</option><option value="Noida" class="text-black">Noida</option><option value="Gurgaon" class="text-black">Gurgaon</option>
+                                    </select>
+                                    <select id="sd-buyer" onchange="calculateStampDuty()" class="bg-transparent border-b border-white/30 text-white font-body text-xs focus:text-black w-1/2">
+                                        <option value="Male" class="text-black">Male</option><option value="Female" class="text-black">Female</option><option value="Joint" class="text-black">Joint</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-1 mb-4"><label class="font-body text-[10px] font-bold uppercase text-white/70">Property Value (₹)</label><input type="number" id="sd-value" value="12000000" oninput="calculateStampDuty()" class="bg-transparent text-white border-white/30 focus:border-white"></div>
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-white/20">
+                                    <span class="font-body text-[10px] font-bold uppercase tracking-widest text-white/70" id="sd-rates">0%</span>
+                                    <span class="font-headline text-2xl" id="sd-total">₹0</span>
+                                </div>
+                            </div>
+                            <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                                <span class="material-symbols-outlined text-8xl">gavel</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-7 bg-surface-container-lowest p-8 shadow-ambient rounded-sm">
-                        <div class="mb-8"><span class="font-body text-[10px] font-bold uppercase tracking-widest text-tertiary mb-1 block">Dimensional Intelligence</span><h3 class="font-headline text-3xl font-medium">Area Converter</h3></div>
-                        <div class="flex flex-col md:flex-row gap-4 mb-6">
-                            <input type="number" id="area-input" value="1" oninput="calculateArea()" class="md:w-1/2">
-                            <select id="area-unit" onchange="calculateArea()" class="md:w-1/2">
-                                <option value="sqft">Sq Ft</option>
-                                <option value="gaj">Sq Yard (Gaj)</option>
-                                <option value="sqm">Sq Meter</option>
-                                <option value="acre">Acre</option>
-                                <option value="bigha">Bigha (UP)</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4" id="area-results"></div>
-                    </div>
-
-                    <div class="md:col-span-5 bg-surface-container-lowest p-8 shadow-ambient rounded-sm">
-                        <div class="mb-6"><span class="font-body text-[10px] font-bold uppercase tracking-widest text-tertiary mb-1 block">Calculator</span><h3 class="font-headline text-2xl font-medium">Stamp Duty Est.</h3></div>
-                        <div class="space-y-5">
-                            <div class="space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Property Value (₹)</label><input type="number" id="sd-value" value="12000000" oninput="calculateStampDuty()"></div>
-                            <div class="flex gap-4">
-                                <div class="w-1/2 space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Region</label><select id="sd-region" onchange="calculateStampDuty()"><option value="Delhi">Delhi</option><option value="Noida">Noida (UP)</option><option value="Gurgaon">Gurgaon (HR)</option></select></div>
-                                <div class="w-1/2 space-y-1.5"><label class="font-body text-[10px] font-bold uppercase text-primary-fixed-dim">Buyer</label><select id="sd-buyer" onchange="calculateStampDuty()"><option value="Male">Male Buyer</option><option value="Female">Female Buyer</option><option value="Joint">Joint (M+F)</option></select></div>
+                    <div class="md:col-span-12 bg-surface-container-lowest border border-outline-variant/20 p-8 shadow-ambient">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                            <div>
+                                <span class="font-body text-[10px] font-bold uppercase text-primary-fixed mb-1 block">Dimensional Intelligence</span>
+                                <h3 class="font-headline text-3xl">Area Unit Converter</h3>
                             </div>
-                            <div class="pt-4 border-t border-outline-variant/20 flex justify-between items-end">
-                                <div><p class="font-body text-[10px] font-bold uppercase tracking-widest text-outline-variant">Duty & Reg</p><p class="font-headline text-3xl font-bold text-primary" id="sd-total">₹0</p></div>
-                                <div class="text-right"><span class="font-body text-[10px] font-bold text-primary-fixed-dim" id="sd-rates">0%</span></div>
+                            <div class="flex gap-4 items-center">
+                                <input type="number" id="area-input" value="1250" oninput="calculateArea()" class="bg-surface-container-low w-32">
+                                <select id="area-unit" onchange="calculateArea()" class="bg-surface-container-low w-32">
+                                    <option value="sqft">Sq Ft</option><option value="sqm">Sq Meter</option><option value="gaj">Sq Yard</option><option value="acre">Acre</option><option value="bigha">Bigha</option>
+                                </select>
                             </div>
                         </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border border-outline-variant/20" id="area-results">
+                            </div>
                     </div>
 
                 </div>
@@ -235,7 +260,7 @@
         </main>
     </div>
 
-    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-surface-container-lowest border-t border-outline-variant/20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+    <nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-white border-t border-outline-variant/20">
         <button onclick="switchAppView('feed')" id="tab-feed-mobile" class="flex flex-col items-center justify-center text-primary scale-110 transition-all w-full h-full">
             <span class="material-symbols-outlined text-[20px] fill-current">dynamic_feed</span><span class="font-body text-[9px] font-bold uppercase tracking-widest mt-1">Feed</span>
         </button>
@@ -243,7 +268,7 @@
             <span class="material-symbols-outlined text-[20px]">gavel</span><span class="font-body text-[9px] font-bold uppercase tracking-widest mt-1">Notices</span>
         </button>
         <button onclick="switchAppView('utils')" id="tab-utils-mobile" class="flex flex-col items-center justify-center text-outline-variant hover:text-primary transition-all w-full h-full">
-            <span class="material-symbols-outlined text-[20px]">calculate</span><span class="font-body text-[9px] font-bold uppercase tracking-widest mt-1">Tools</span>
+            <span class="material-symbols-outlined text-[20px]">monitoring</span><span class="font-body text-[9px] font-bold uppercase tracking-widest mt-1">Analytics</span>
         </button>
     </nav>
 

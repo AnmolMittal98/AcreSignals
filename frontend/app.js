@@ -94,6 +94,26 @@ async function fetchSignals() {
     }
 }
 
+// --- THE CONTEXT MATRIX ---
+function getMarketContext(impact, category) {
+    const cat = category.toLowerCase();
+    if (impact === 'Positive') {
+        if (cat.includes('infra') || cat.includes('expressway') || cat.includes('airport')) return 'Value Unlock / Catalyst';
+        if (cat.includes('resid')) return 'Buyer Advantage / Appreciation';
+        if (cat.includes('commer') || cat.includes('leas') || cat.includes('office')) return 'Yield Growth';
+        if (cat.includes('polic') || cat.includes('rera') || cat.includes('auth')) return 'Pro-Market / Transparency';
+        return 'Bullish Indicator';
+    } else if (impact === 'Negative') {
+        if (cat.includes('infra')) return 'Execution Delay / Headwind';
+        if (cat.includes('resid')) return 'Pricing Pressure / Supply Risk';
+        if (cat.includes('commer')) return 'Vacancy Risk';
+        if (cat.includes('polic') || cat.includes('rera') || cat.includes('auth') || cat.includes('tax')) return 'Developer Risk / Compliance';
+        return 'Market Friction';
+    } else {
+        return 'Stable Holding';
+    }
+}
+
 function renderFeed(data) {
     const container = document.getElementById('signals-list');
     if(!container) return;
@@ -105,58 +125,61 @@ function renderFeed(data) {
     }
 
     data.forEach(signal => {
-        // TERMINOLOGY FIX: Translating backend tags to market-neutral tags
-        let displayImpact = signal.impact;
-        if (signal.impact === 'Positive') displayImpact = 'Growth';
-        if (signal.impact === 'Negative') displayImpact = 'Risk';
-        if (signal.impact === 'Neutral') displayImpact = 'Stable';
-
-        let chipBg = signal.impact === 'Positive' ? 'bg-bullish-container' : (signal.impact === 'Negative' ? 'bg-bearish-container' : 'bg-neutral-container');
-        let chipText = signal.impact === 'Positive' ? 'text-bullish' : (signal.impact === 'Negative' ? 'text-bearish' : 'text-neutral');
+        // 1. Structural Styling
+        let impactClass = signal.impact === 'Positive' ? 'impact-positive' : (signal.impact === 'Negative' ? 'impact-negative' : 'impact-neutral');
         
+        // 2. Generate Smart Sentiment
+        let smartSentiment = getMarketContext(signal.impact, signal.category);
+        let chipColors = signal.impact === 'Positive' ? 'bg-[#059669]/10 text-[#059669]' : (signal.impact === 'Negative' ? 'bg-[#dc2626]/10 text-[#dc2626]' : 'bg-[#71717a]/10 text-[#71717a]');
+        let iconName = signal.impact === 'Positive' ? 'trending_up' : (signal.impact === 'Negative' ? 'warning' : 'horizontal_rule');
+        
+        // 3. Text Formatting
         let sentences = signal.summary.split('. ').filter(s => s.trim().length > 0);
         let bullet1 = sentences[0] ? sentences[0] + (sentences[0].endsWith('.') ? '' : '.') : '';
         let bullet2 = sentences[1] ? sentences[1] + (sentences[1].endsWith('.') ? '' : '.') : '';
 
         const isSaved = savedSignals.includes(signal.id);
 
-        // UI UPGRADE: Added hover animations, masonry 'break-inside-avoid', and scroll start states
         const cardHTML = `
-            <div class="signal-card opacity-0 translate-y-8 transition-all duration-700 ease-out break-inside-avoid mb-6 bg-surface-container-lowest rounded-md p-6 flex flex-col gap-3 border border-outline-variant/10 shadow-sm hover:shadow-md hover:-translate-y-1">
-                <div class="flex items-center justify-between border-b border-outline-variant/20 pb-2">
-                    <span class="text-[10px] font-bold tracking-widest text-primary-fixed-dim uppercase">${signal.category} • ${signal.location}</span>
-                    <span class="text-[10px] font-medium text-outline-variant">${signal.date}</span>
-                </div>
-                <div class="flex items-start justify-between gap-2 pt-1">
-                    <h2 class="font-headline text-3xl font-medium leading-none text-primary tracking-tight pr-4">${signal.headline}</h2>
-                    <span class="px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest ${chipBg} ${chipText} flex-shrink-0">${displayImpact}</span>
-                </div>
-                <div class="bg-surface rounded-sm p-4 mt-2 space-y-2 border border-outline-variant/10">
-                    ${bullet1 ? `<div class="flex gap-2 items-start"><span class="text-outline-variant mt-1 text-[10px]">■</span><p class="text-[13px] font-medium text-on-surface leading-snug">${bullet1}</p></div>` : ''}
-                    ${bullet2 ? `<div class="flex gap-2 items-start"><span class="text-outline-variant mt-1 text-[10px]">■</span><p class="text-[13px] font-medium text-on-surface leading-snug">${bullet2}</p></div>` : ''}
-                </div>
-                
-                <div class="pt-4 mt-2 flex justify-between items-center border-t border-outline-variant/10">
-                    <div class="flex gap-4">
-                        <button onclick="shareToWhatsApp(${signal.id}, '${signal.location}', '${signal.category}')" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-primary-fixed-dim hover:text-[#25D366] uppercase tracking-widest transition-colors">
-                            <span class="material-symbols-outlined text-[14px]">share</span> WhatsApp
-                        </button>
-                        
-                        <button onclick="toggleSaveSignal(${signal.id})" class="inline-flex items-center gap-1 text-[10px] font-bold ${isSaved ? 'text-primary' : 'text-outline-variant hover:text-primary'} uppercase tracking-widest transition-colors">
-                            <span class="material-symbols-outlined text-[14px] ${isSaved ? 'fill-current' : ''}">bookmark</span> ${isSaved ? 'Saved' : 'Save'}
-                        </button>
+            <article class="group relative flex bg-surface-container-lowest border border-transparent hover:border-outline-variant/30 transition-all duration-300 shadow-ambient signal-card opacity-0 translate-y-8 break-inside-avoid mb-8">
+                <div class="w-1.5 h-auto ${impactClass} flex-shrink-0"></div>
+                <div class="flex-1 p-6 flex flex-col gap-4">
+                    
+                    <div class="flex flex-wrap items-center gap-3 mb-1">
+                        <span class="px-2 py-1 rounded-sm text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 ${chipColors}">
+                            <span class="material-symbols-outlined text-[12px]">${iconName}</span>
+                            ${smartSentiment}
+                        </span>
+                        <span class="font-body text-[10px] font-bold uppercase tracking-wider text-outline-variant">${signal.category} • ${signal.location}</span>
+                        <span class="ml-auto text-[10px] text-outline-variant italic">${signal.date}</span>
                     </div>
-
-                    <a href="${signal.sourceUrl}" target="_blank" class="inline-flex items-center gap-1 text-[10px] font-bold text-outline-variant hover:text-primary uppercase tracking-widest transition-colors">
-                        Source <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                    </a>
+                    
+                    <h2 class="font-headline text-3xl font-bold mb-2 group-hover:underline underline-offset-4 decoration-1 text-primary leading-tight">${signal.headline}</h2>
+                    
+                    <ul class="space-y-3 mb-4">
+                        ${bullet1 ? `<li class="flex items-start gap-3"><span class="w-1 h-1 rounded-full bg-primary mt-2 flex-shrink-0"></span><p class="text-on-surface-variant text-sm leading-relaxed">${bullet1}</p></li>` : ''}
+                        ${bullet2 ? `<li class="flex items-start gap-3"><span class="w-1 h-1 rounded-full bg-primary mt-2 flex-shrink-0"></span><p class="text-on-surface-variant text-sm leading-relaxed">${bullet2}</p></li>` : ''}
+                    </ul>
+                    
+                    <div class="mt-auto pt-4 flex justify-between items-center border-t border-outline-variant/20">
+                        <div class="flex gap-4">
+                            <button onclick="shareToWhatsApp(${signal.id}, '${signal.location}', '${signal.category}')" class="inline-flex items-center gap-1.5 text-[10px] font-bold text-primary hover:text-[#25D366] uppercase tracking-widest transition-colors">
+                                <span class="material-symbols-outlined text-[14px]">share</span> Share
+                            </button>
+                            <button onclick="toggleSaveSignal(${signal.id})" class="inline-flex items-center gap-1 text-[10px] font-bold ${isSaved ? 'text-primary' : 'text-outline-variant hover:text-primary'} uppercase tracking-widest transition-colors">
+                                <span class="material-symbols-outlined text-[14px] ${isSaved ? 'fill-current' : ''}">bookmark</span> ${isSaved ? 'Saved' : 'Save'}
+                            </button>
+                        </div>
+                        <a href="${signal.sourceUrl}" target="_blank" class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary border-b border-primary/10 hover:border-primary transition-all py-1">
+                            Source <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </article>
         `;
         container.insertAdjacentHTML('beforeend', cardHTML);
     });
 
-    // Trigger the scroll animation engine after the cards are painted
     observeCards();
 }
 
@@ -310,11 +333,12 @@ function calculateArea() {
     Object.keys(unitRates).forEach(targetUnit => {
         if (targetUnit !== unit) {
             const converted = baseSqFt / unitRates[targetUnit];
-            const labels = { sqft: 'Sq Ft', gaj: 'Sq Yd (Gaj)', sqm: 'Sq Meter', acre: 'Acres', bigha: 'Bigha (UP)' };
+            const labels = { sqft: 'Sq Feet', gaj: 'Sq Yards', sqm: 'Sq Meters', acre: 'Acres', bigha: 'Bigha (UP)' };
             resultsDiv.insertAdjacentHTML('beforeend', `
-                <div class="bg-surface p-3 rounded-sm border border-outline-variant/10 flex flex-col">
-                    <span class="text-[10px] font-bold text-primary-fixed-dim uppercase tracking-widest">${labels[targetUnit]}</span>
-                    <span class="font-headline text-lg font-bold text-primary">${converted.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+                <div class="p-6 border-r border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors group">
+                    <label class="font-body text-[10px] font-bold uppercase text-on-surface-variant group-hover:text-primary">${labels[targetUnit]}</label>
+                    <p class="text-xl font-medium mt-2 text-primary-fixed-dim group-hover:text-primary">${converted.toLocaleString('en-IN', {maximumFractionDigits: 2})}</p>
+                    <div class="h-0.5 w-0 group-hover:w-full bg-primary transition-all duration-300 mt-2"></div>
                 </div>
             `);
         }
@@ -347,44 +371,55 @@ async function fetchCirculars() {
         const response = await fetch('/api/circulars');
         const circulars = await response.json();
         
-        const containers = {
-            'DDA': document.getElementById('circ-dda'),
-            'UP RERA': document.getElementById('circ-uprera'),
-            'Noida Authority': document.getElementById('circ-noida'),
-            'Haryana RERA': document.getElementById('circ-hrera')
-        };
+        const container = document.getElementById('circulars-bento-grid');
+        if (!container) return;
+        container.innerHTML = '';
 
-        Object.values(containers).forEach(c => { if(c) c.innerHTML = ''; });
+        // Generate dynamic bento grid classes to make it look like an editorial layout
+        const gridClasses = [
+            "md:col-span-8", "md:col-span-4", "md:col-span-4", "md:col-span-4", "md:col-span-4", "md:col-span-6", "md:col-span-6"
+        ];
 
-        circulars.forEach(circ => {
+        circulars.forEach((circ, index) => {
             const dateObj = new Date(circ.published_date);
             const dateStr = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            // Cycle through the grid classes to create the asymmetric bento layout
+            const spanClass = gridClasses[index % gridClasses.length];
+            
+            // Determine styling based on authority
+            let tagColor = "bg-primary/5 text-primary";
+            let icon = "gavel";
+            if (circ.source_name.includes('UP RERA')) { tagColor = "bg-error/10 text-error"; icon = "policy"; }
+            else if (circ.source_name.includes('Haryana')) { tagColor = "bg-tertiary/10 text-tertiary"; icon = "account_balance"; }
 
             const html = `
-                <a href="${circ.url}" target="_blank" onclick="window.trackEvent('circular_opened', { source: '${circ.source_name}' })" class="block bg-surface p-4 rounded-sm border border-outline-variant/10 hover:border-primary/40 transition-colors">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-[9px] font-bold tracking-widest text-primary-fixed-dim uppercase flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[12px]">picture_as_pdf</span>
-                            OFFICIAL PORTAL
-                        </span>
-                        <span class="text-[9px] font-medium text-outline-variant">${dateStr}</span>
+                <article class="${spanClass} group cursor-pointer" onclick="window.open('${circ.url}', '_blank'); window.trackEvent('circular_opened', { source: '${circ.source_name}' })">
+                    <div class="bg-surface-container-lowest p-8 flex flex-col h-full transition-all duration-300 hover:bg-white shadow-ambient border border-outline-variant/10 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-12 relative z-10">
+                            <div>
+                                <span class="${tagColor} text-[10px] font-bold px-2 py-1 tracking-widest uppercase rounded-sm">Notice</span>
+                                <span class="ml-3 text-outline-variant font-body text-[10px] font-medium uppercase tracking-widest">${circ.source_name}</span>
+                            </div>
+                            <time class="text-outline-variant font-body text-[10px] font-medium uppercase tracking-widest">${dateStr}</time>
+                        </div>
+                        <div class="mt-auto relative z-10">
+                            <h2 class="font-headline text-2xl md:text-3xl font-bold leading-tight mb-6 group-hover:underline decoration-1 underline-offset-4">${circ.title}</h2>
+                            <div class="flex items-center gap-6 pt-6 border-t border-outline-variant/20">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-lg text-primary">description</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-primary">View Original PDF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -right-8 -top-8 opacity-[0.03] pointer-events-none group-hover:opacity-10 transition-opacity duration-500">
+                            <span class="material-symbols-outlined text-[12rem]">${icon}</span>
+                        </div>
                     </div>
-                    <p class="text-[13px] font-medium text-on-surface leading-snug">${circ.title}</p>
-                </a>
+                </article>
             `;
-
-            if (circ.source_name.includes('DDA') && containers['DDA']) containers['DDA'].insertAdjacentHTML('beforeend', html);
-            else if (circ.source_name.includes('UP RERA') && containers['UP RERA']) containers['UP RERA'].insertAdjacentHTML('beforeend', html);
-            else if (circ.source_name.includes('Noida') && containers['Noida Authority']) containers['Noida Authority'].insertAdjacentHTML('beforeend', html);
-            else if (circ.source_name.includes('Haryana') && containers['Haryana RERA']) containers['Haryana RERA'].insertAdjacentHTML('beforeend', html);
+            container.insertAdjacentHTML('beforeend', html);
         });
-
-        Object.values(containers).forEach(c => {
-            if (c && c.innerHTML === '') {
-                c.innerHTML = '<p class="text-[11px] text-outline-variant">No recent notices available.</p>';
-            }
-        });
-
     } catch (error) {
         console.error("Failed to load circulars", error);
     }
