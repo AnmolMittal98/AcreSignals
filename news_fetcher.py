@@ -77,30 +77,40 @@ def process_batch_with_gemini(batch: list) -> list:
         articles_text += f"Text: {item['text']}\n\n"
 
     try:
-        # OPTIMIZATION: Switched to flash-lite for extreme efficiency
         model = genai.GenerativeModel('gemini-2.5-flash-lite')
-        response = model.generate_content(f"{SYSTEM_PROMPT}\n{articles_text}")
         
-        response_text = response.text.strip()
+        # UPGRADE: Force Native JSON Mode to prevent formatting crashes
+        response = model.generate_content(
+            f"{SYSTEM_PROMPT}\n{articles_text}",
+            generation_config=genai.GenerationConfig(
+                response_mime_type="application/json",
+            )
+        )
         
-        if response_text.startswith("```json"):
-            response_text = response_text[7:]
-        elif response_text.startswith("```"):
-            response_text = response_text[3:]
+        raw_text = response.text.strip()
+        
+        # UPGRADE: Bulletproof markdown stripping
+        if raw_text.startswith("```"):
+            raw_text = raw_text.split("\n", 1)[-1]
+        if raw_text.endswith("```"):
+            raw_text = raw_text.rsplit("\n", 1)[0]
+        raw_text = raw_text.strip()
+        
+        if not raw_text:
+            logging.warning("Gemini returned an empty string (likely safety filter triggered).")
+            return []
             
-        if response_text.endswith("```"):
-            response_text = response_text[:-3]
-            
-        results = json.loads(response_text.strip())
+        # UPGRADE: strict=False ignores invisible control characters
+        results = json.loads(raw_text, strict=False)
         
         if not isinstance(results, list):
-            logging.error("Gemini did not return a JSON array.")
+            logging.error("Gemini returned JSON, but not an array as expected.")
             return []
             
         return results
         
     except json.JSONDecodeError as e:
-        logging.error(f"Failed to decode JSON from Gemini. Error: {e}")
+        logging.error(f"Failed to decode JSON from Gemini. Error: {e}\nRaw Text Preview: {raw_text[:100]}")
         return []
     except Exception as e:
         logging.error(f"Gemini API Error: {str(e)}")
@@ -108,8 +118,6 @@ def process_batch_with_gemini(batch: list) -> list:
 
 def fetch_and_process_feeds():
     db: Session = SessionLocal()
-    
-    # THE 15-DAY HORIZON: Perfect balance of volume and recency
     MAX_DAYS_OLD = 15 
     
     for feed_source in RSS_FEEDS:
@@ -122,15 +130,13 @@ def fetch_and_process_feeds():
         
         current_batch = []
         
-        for entry in feed.entries[:25]: # Checking top 25 per feed to ensure we hit the 15-day limit
-            # 0. Time Horizon Filter
+        for entry in feed.entries[:25]:
             if hasattr(entry, 'published_parsed') and entry.published_parsed:
                 pub_date = datetime.fromtimestamp(mktime(entry.published_parsed))
                 days_old = (datetime.utcnow() - pub_date).days
                 if days_old > MAX_DAYS_OLD:
                     continue 
             
-            # 1. Skip if already in DB
             exists = db.query(MarketSignal).filter(MarketSignal.source_url == entry.link).first()
             if exists:
                 continue
@@ -138,11 +144,9 @@ def fetch_and_process_feeds():
             article_text = entry.summary if hasattr(entry, 'summary') else entry.title
             full_text_to_check = f"{entry.title} {article_text}"
             
-            # 2. Python Pre-filter
             if not is_relevant_for_ncr(full_text_to_check):
                 continue
             
-            # 3. Add to batch
             current_batch.append({
                 "batch_id": len(current_batch),
                 "title": entry.title,
@@ -152,18 +156,16 @@ def fetch_and_process_feeds():
                 "published_parsed": entry.published_parsed if hasattr(entry, 'published_parsed') else None
             })
             
-            # 4. OPTIMIZATION: Process batch of 25 to protect Free Tier RPD
-            if len(current_batch) == 25:
-                logging.info("Processing massive batch of 25 articles...")
+            if len(current_batch) >= 20:
+                logging.info(f"Processing batch of {len(current_batch)} articles...")
                 process_and_save_batch(db, current_batch)
                 current_batch = []
-                time.sleep(25) # Keeps you safe under the 5 Requests/Min Free Tier limit
+                time.sleep(20) 
                 
-        # Process remaining
         if len(current_batch) > 0:
             logging.info(f"Processing final batch of {len(current_batch)} articles...")
             process_and_save_batch(db, current_batch)
-            time.sleep(25)
+            time.sleep(20)
 
     db.close()
     logging.info("RSS Feed processing cycle complete.")
@@ -188,7 +190,6 @@ def process_and_save_batch(db: Session, batch: list):
             if original_article['published_parsed']:
                 pub_date = datetime.fromtimestamp(mktime(original_article['published_parsed']))
 
-            # FIX: Properly extract the headline from Gemini's response
             new_signal = MarketSignal(
                 headline=result.get('headline', 'Market Update'), 
                 location=result.get('location', 'Delhi NCR'),
