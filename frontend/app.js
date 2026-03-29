@@ -68,7 +68,7 @@ function shareToWhatsApp(id, location, category) {
 async function fetchSignals() {
     const container = document.getElementById('signals-list');
     if(!container) return;
-    container.innerHTML = '<div class="text-center py-10 text-primary-fixed-dim font-bold text-[10px] uppercase tracking-widest animate-pulse">Establishing Connection...</div>';
+    container.innerHTML = '<div class="text-center py-10 text-primary-fixed-dim font-bold text-[10px] uppercase tracking-widest animate-pulse w-full col-span-full">Establishing Connection...</div>';
     
     try {
         const response = await fetch('/api/signals');
@@ -76,14 +76,18 @@ async function fetchSignals() {
         
         allSignals = dbSignals.map(signal => ({
             id: signal.id,
+            rawDate: signal.published_at, // NEW: Keep the raw timestamp for sorting
             date: timeSince(signal.published_at),
-            headline: signal.headline || "Market Update", // Fallback for old DB entries
+            headline: signal.headline || "Market Update", 
             location: signal.location,
             category: signal.category,
             impact: signal.impact,
             summary: signal.summary,
             sourceUrl: signal.source_url
         }));
+
+        // NEW: Sort the array so the newest timestamps are always at index 0 (the top)
+        allSignals.sort((a, b) => new Date(b.rawDate) - new Date(a.rawDate));
         
         const syncStatus = document.getElementById('sync-status');
         if(syncStatus) syncStatus.innerHTML = '<span class="material-symbols-outlined text-[16px] text-primary">check</span>';
